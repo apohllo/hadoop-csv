@@ -54,7 +54,6 @@ module Hadoop
       @result = [[]]
       @position = 0
       @states = [:default]
-      puts line
       data = line.unpack('c*')
       p = 0
       pe = data.length
@@ -100,9 +99,9 @@ module Hadoop
         last_start = @position
         new_data = data[last_start..position-1].pack("c*")
         case new_data
-        when /^\d+\./
+        when /^-?\d+\./
           @result.last << new_data.to_f
-        when /^\d/
+        when /^-?\d/
           @result.last << new_data.to_i
         when /^'/
           @result.last << new_data[1..-1].gsub(/%00/,"\0").gsub(/%0A/,"\n").

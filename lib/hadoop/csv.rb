@@ -10,10 +10,12 @@ module Hadoop
   class Csv
     attr_reader :path
 
-    def initialize(path)
+    # Create new Hadoop CSV parser. If +path+ is given,
+    # the file will be parsed in +each+ method.
+    def initialize(path=nil)
       @path = path
       
-# line 17 "lib/hadoop/csv.rb"
+# line 19 "lib/hadoop/csv.rb"
 class << self
 	attr_accessor :_csv_actions
 	private :_csv_actions, :_csv_actions=
@@ -110,68 +112,12 @@ end
 self.csv_en_main = 1;
 
 
-# line 28 "lib/hadoop/csv.rl"
+# line 30 "lib/hadoop/csv.rl"
       # % (this fixes syntax highlighting)
     end
 
-    def register_start(position,char,next_char)
-      case @states.last
-      when :default
-        @position = position
-        process_char(char,next_char)
-      when :string
-        # ignore
-      when :bytes
-        #ignore
-      when :struct
-        @position = position
-        process_char(char,next_char)
-      end
-    end
-
-    def process_char(char,next_char)
-      case char
-      when "'"
-        @states << :string
-      when "#"
-        @states << :bytes
-      when /s|v|m/
-        if next_char == "{"
-          @states << :struct
-          @result << []
-        end
-      else
-        @states << :other
-      end
-    end
-
-    def register_end(char,data,position)
-      #if char == "," || char == "}" #|| (@states.last != :string && @states.last != :bytes)
-        last_start = @position
-        new_data = data[last_start..position-1].pack("c*")
-        case new_data
-        when /^\d+\./
-          @result.last << new_data.to_f
-        when /^\d/
-          @result.last << new_data.to_i
-        when /^'/
-          @result.last << new_data[1..-1].gsub(/%00/,"\0").gsub(/%0A/,"\n").
-            gsub(/%25/,"%").gsub(/%2C/,",").force_encoding("utf-8")
-        when /^T/
-          @result.last << true
-        when /^F/
-          @result.last << false
-        when /^}/
-          subresult = @result.pop
-          @result.last << subresult
-        else
-          raise "CSV error: #{new_data}"
-        end
-        @position = position
-        @states.pop
-      #end
-    end
-
+    # Opens the file given in constructor and yields
+    # the parsed results.
     def each
       if block_given?
         File.open(path) do |f|
@@ -184,29 +130,29 @@ self.csv_en_main = 1;
       end
     end
 
+    # Parse single line of Hadoop CSV. The line must end with '\n'.
     def parse(line)
       # So that ragel doesn't try to get it from data.length
       pe = :ignored
       eof = :ignored
       
-# line 193 "lib/hadoop/csv.rb"
+# line 140 "lib/hadoop/csv.rb"
 begin
 	p ||= 0
 	pe ||= data.length
 	cs = csv_start
 end
 
-# line 106 "lib/hadoop/csv.rl"
+# line 53 "lib/hadoop/csv.rl"
       # % (this fixes syntax highlighting)
       @result = [[]]
       @position = 0
       @states = [:default]
-      puts line
       data = line.unpack('c*')
       p = 0
       pe = data.length
       
-# line 210 "lib/hadoop/csv.rb"
+# line 156 "lib/hadoop/csv.rb"
 begin
 	_klen, _trans, _keys, _acts, _nacts = nil
 	_goto_level = 0
@@ -299,7 +245,7 @@ when 1 then
 
   register_end([data[p]].pack("c*"),data,p)
 		end
-# line 303 "lib/hadoop/csv.rb"
+# line 249 "lib/hadoop/csv.rb"
 			end # action switch
 		end
 	end
@@ -326,9 +272,68 @@ when 1 then
 	end
 	end
 
-# line 115 "lib/hadoop/csv.rl"
+# line 61 "lib/hadoop/csv.rl"
       # % (this fixes syntax highlighting)
       @result[0]
+    end
+
+    protected
+    def register_start(position,char,next_char)
+      case @states.last
+      when :default
+        @position = position
+        process_char(char,next_char)
+      when :string
+        # ignore
+      when :bytes
+        #ignore
+      when :struct
+        @position = position
+        process_char(char,next_char)
+      end
+    end
+
+    def process_char(char,next_char)
+      case char
+      when "'"
+        @states << :string
+      when "#"
+        @states << :bytes
+      when /s|v|m/
+        if next_char == "{"
+          @states << :struct
+          @result << []
+        end
+      else
+        @states << :other
+      end
+    end
+
+    def register_end(char,data,position)
+      #if char == "," || char == "}" #|| (@states.last != :string && @states.last != :bytes)
+        last_start = @position
+        new_data = data[last_start..position-1].pack("c*")
+        case new_data
+        when /^-?\d+\./
+          @result.last << new_data.to_f
+        when /^-?\d/
+          @result.last << new_data.to_i
+        when /^'/
+          @result.last << new_data[1..-1].gsub(/%00/,"\0").gsub(/%0A/,"\n").
+            gsub(/%25/,"%").gsub(/%2C/,",").force_encoding("utf-8")
+        when /^T/
+          @result.last << true
+        when /^F/
+          @result.last << false
+        when /^}/
+          subresult = @result.pop
+          @result.last << subresult
+        else
+          raise "CSV error: #{new_data}"
+        end
+        @position = position
+        @states.pop
+      #end
     end
   end
 end
