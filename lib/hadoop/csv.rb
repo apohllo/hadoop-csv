@@ -8,6 +8,13 @@
 =end
 module Hadoop
   class Csv
+    SINGLE_QUOTE_CODE = "'".codepoints.first
+    DASH_CODE = "#".codepoints.first
+    S_CODE = "s".codepoints.first
+    V_CODE = "v".codepoints.first
+    M_CODE = "m".codepoints.first
+    OPENING_BRACE_CODE = "{".codepoints.first
+
     attr_reader :path
 
     # Create new Hadoop CSV parser. If +path+ is given,
@@ -15,47 +22,23 @@ module Hadoop
     def initialize(path=nil)
       @path = path
       
-# line 19 "lib/hadoop/csv.rb"
-class << self
-	attr_accessor :_csv_actions
-	private :_csv_actions, :_csv_actions=
-end
-self._csv_actions = [
-	0, 1, 0, 1, 1
-]
-
-class << self
-	attr_accessor :_csv_key_offsets
-	private :_csv_key_offsets, :_csv_key_offsets=
-end
-self._csv_key_offsets = [
-	0, 0, 16, 18, 20, 22
-]
-
+# line 26 "lib/hadoop/csv.rb"
 class << self
 	attr_accessor :_csv_trans_keys
 	private :_csv_trans_keys, :_csv_trans_keys=
 end
 self._csv_trans_keys = [
-	0, 10, 35, 37, 39, 44, 45, 59, 
-	70, 84, 109, 115, 118, 125, 48, 57, 
-	48, 50, 48, 65, 53, 67, 0
+	0, 0, 0, 125, 48, 50, 
+	48, 65, 53, 67, 0, 
+	0, 0
 ]
 
 class << self
-	attr_accessor :_csv_single_lengths
-	private :_csv_single_lengths, :_csv_single_lengths=
+	attr_accessor :_csv_key_spans
+	private :_csv_key_spans, :_csv_key_spans=
 end
-self._csv_single_lengths = [
-	0, 14, 2, 2, 2, 0
-]
-
-class << self
-	attr_accessor :_csv_range_lengths
-	private :_csv_range_lengths, :_csv_range_lengths=
-end
-self._csv_range_lengths = [
-	0, 1, 0, 0, 0, 0
+self._csv_key_spans = [
+	0, 126, 3, 18, 15, 0
 ]
 
 class << self
@@ -63,7 +46,7 @@ class << self
 	private :_csv_index_offsets, :_csv_index_offsets=
 end
 self._csv_index_offsets = [
-	0, 0, 16, 19, 22, 25
+	0, 0, 127, 131, 150, 166
 ]
 
 class << self
@@ -71,10 +54,27 @@ class << self
 	private :_csv_indicies, :_csv_indicies=
 end
 self._csv_indicies = [
-	1, 2, 3, 4, 3, 5, 3, 3, 
-	3, 3, 3, 3, 3, 5, 3, 0, 
-	6, 7, 1, 0, 0, 1, 0, 0, 
-	1, 1, 0
+	1, 0, 0, 0, 0, 0, 0, 0, 
+	0, 0, 2, 0, 0, 0, 0, 0, 
+	0, 0, 0, 0, 0, 0, 0, 0, 
+	0, 0, 0, 0, 0, 0, 0, 0, 
+	0, 0, 0, 3, 0, 4, 0, 3, 
+	0, 0, 0, 0, 5, 3, 0, 0, 
+	3, 3, 3, 3, 3, 3, 3, 3, 
+	3, 3, 0, 3, 0, 0, 0, 0, 
+	0, 0, 0, 0, 0, 0, 3, 0, 
+	0, 0, 0, 0, 0, 0, 0, 0, 
+	0, 0, 0, 0, 3, 0, 0, 0, 
+	0, 0, 0, 0, 0, 0, 0, 0, 
+	0, 0, 0, 0, 0, 0, 0, 0, 
+	0, 0, 0, 0, 0, 3, 0, 0, 
+	0, 0, 0, 3, 0, 0, 3, 0, 
+	0, 0, 0, 0, 0, 5, 0, 6, 
+	1, 7, 1, 0, 1, 1, 1, 1, 
+	1, 1, 1, 1, 1, 1, 1, 1, 
+	1, 1, 1, 1, 0, 1, 0, 1, 
+	1, 1, 1, 1, 1, 1, 1, 1, 
+	1, 1, 1, 1, 0, 1, 1, 0
 ]
 
 class << self
@@ -90,7 +90,7 @@ class << self
 	private :_csv_trans_actions, :_csv_trans_actions=
 end
 self._csv_trans_actions = [
-	0, 0, 3, 1, 0, 3, 0, 0
+	0, 0, 1, 2, 0, 1, 0, 0
 ]
 
 class << self
@@ -112,7 +112,7 @@ end
 self.csv_en_main = 1;
 
 
-# line 30 "lib/hadoop/csv.rl"
+# line 37 "lib/hadoop/csv.rl"
       # % (this fixes syntax highlighting)
     end
 
@@ -143,7 +143,7 @@ begin
 	cs = csv_start
 end
 
-# line 53 "lib/hadoop/csv.rl"
+# line 60 "lib/hadoop/csv.rl"
       # % (this fixes syntax highlighting)
       @result = [[]]
       @position = 0
@@ -154,7 +154,8 @@ end
       
 # line 156 "lib/hadoop/csv.rb"
 begin
-	_klen, _trans, _keys, _acts, _nacts = nil
+	testEof = false
+	_slen, _trans, _keys, _inds, _acts, _nacts = nil
 	_goto_level = 0
 	_resume = 10
 	_eof_trans = 15
@@ -162,7 +163,6 @@ begin
 	_test_eof = 30
 	_out = 40
 	while true
-	_trigger_goto = false
 	if _goto_level <= 0
 	if p == pe
 		_goto_level = _test_eof
@@ -174,83 +174,34 @@ begin
 	end
 	end
 	if _goto_level <= _resume
-	_keys = _csv_key_offsets[cs]
-	_trans = _csv_index_offsets[cs]
-	_klen = _csv_single_lengths[cs]
-	_break_match = false
-	
-	begin
-	  if _klen > 0
-	     _lower = _keys
-	     _upper = _keys + _klen - 1
-
-	     loop do
-	        break if _upper < _lower
-	        _mid = _lower + ( (_upper - _lower) >> 1 )
-
-	        if data[p].ord < _csv_trans_keys[_mid]
-	           _upper = _mid - 1
-	        elsif data[p].ord > _csv_trans_keys[_mid]
-	           _lower = _mid + 1
-	        else
-	           _trans += (_mid - _keys)
-	           _break_match = true
-	           break
-	        end
-	     end # loop
-	     break if _break_match
-	     _keys += _klen
-	     _trans += _klen
-	  end
-	  _klen = _csv_range_lengths[cs]
-	  if _klen > 0
-	     _lower = _keys
-	     _upper = _keys + (_klen << 1) - 2
-	     loop do
-	        break if _upper < _lower
-	        _mid = _lower + (((_upper-_lower) >> 1) & ~1)
-	        if data[p].ord < _csv_trans_keys[_mid]
-	          _upper = _mid - 2
-	        elsif data[p].ord > _csv_trans_keys[_mid+1]
-	          _lower = _mid + 2
-	        else
-	          _trans += ((_mid - _keys) >> 1)
-	          _break_match = true
-	          break
-	        end
-	     end # loop
-	     break if _break_match
-	     _trans += _klen
-	  end
-	end while false
-	_trans = _csv_indicies[_trans]
+	_keys = cs << 1
+	_inds = _csv_index_offsets[cs]
+	_slen = _csv_key_spans[cs]
+	_trans = if (   _slen > 0 && 
+			_csv_trans_keys[_keys] <= data[p].ord && 
+			data[p].ord <= _csv_trans_keys[_keys + 1] 
+		    ) then
+			_csv_indicies[ _inds + data[p].ord - _csv_trans_keys[_keys] ] 
+		 else 
+			_csv_indicies[ _inds + _slen ]
+		 end
 	cs = _csv_trans_targs[_trans]
 	if _csv_trans_actions[_trans] != 0
-		_acts = _csv_trans_actions[_trans]
-		_nacts = _csv_actions[_acts]
-		_acts += 1
-		while _nacts > 0
-			_nacts -= 1
-			_acts += 1
-			case _csv_actions[_acts - 1]
-when 0 then
+	case _csv_trans_actions[_trans]
+	when 2 then
 # line 6 "lib/hadoop/csv.rl"
 		begin
 
-  register_start(p,[data[p]].pack("c*"),[data[p+1]].pack("c*"))
+  register_start(p,data[p],data[p+1])
 		end
-when 1 then
+	when 1 then
 # line 10 "lib/hadoop/csv.rl"
 		begin
 
-  register_end([data[p]].pack("c*"),data,p)
+  register_end(data[p],data,p)
 		end
-# line 249 "lib/hadoop/csv.rb"
-			end # action switch
-		end
+# line 204 "lib/hadoop/csv.rb"
 	end
-	if _trigger_goto
-		next
 	end
 	end
 	if _goto_level <= _again
@@ -269,38 +220,38 @@ when 1 then
 	if _goto_level <= _out
 		break
 	end
-	end
+end
 	end
 
-# line 61 "lib/hadoop/csv.rl"
+# line 68 "lib/hadoop/csv.rl"
       # % (this fixes syntax highlighting)
       @result[0]
     end
 
     protected
-    def register_start(position,char,next_char)
+    def register_start(position,char_code,next_char_code)
       case @states.last
       when :default
         @position = position
-        process_char(char,next_char)
+        process_char(char_code,next_char_code)
       when :string
         # ignore
       when :bytes
         #ignore
       when :struct
         @position = position
-        process_char(char,next_char)
+        process_char(char_code,next_char_code)
       end
     end
 
-    def process_char(char,next_char)
-      case char
-      when "'"
+    def process_char(char_code,next_char_code)
+      case char_code
+      when SINGLE_QUOTE_CODE
         @states << :string
-      when "#"
+      when DASH_CODE
         @states << :bytes
-      when /s|v|m/
-        if next_char == "{"
+      when S_CODE, V_CODE, M_CODE
+        if next_char_code == OPENING_BRACE_CODE
           @states << :struct
           @result << []
         end
@@ -309,31 +260,39 @@ when 1 then
       end
     end
 
-    def register_end(char,data,position)
+    def register_end(char_code,data,position)
+      # TODO there seems to be ambiguity in the CSV format:
+      # unicode string/byte sequence containing the closing brace
+      # TODO fix char -> char_code
       #if char == "," || char == "}" #|| (@states.last != :string && @states.last != :bytes)
-        last_start = @position
-        new_data = data[last_start..position-1].pack("c*")
-        case new_data
-        when /^-?\d+\./
-          @result.last << new_data.to_f
-        when /^-?\d/
-          @result.last << new_data.to_i
-        when /^'/
-          @result.last << new_data[1..-1].gsub(/%00/,"\0").gsub(/%0A/,"\n").
-            gsub(/%25/,"%").gsub(/%2C/,",").force_encoding("utf-8")
-        when /^T/
+      last_start = @position
+      new_data = data[last_start..position-1].pack("c*")
+      case new_data[0]
+      when "'"
+        @result.last << new_data[1..-1].gsub(/%00/,"\0").gsub(/%0A/,"\n").
+          gsub(/%25/,"%").gsub(/%2C/,",").force_encoding("utf-8")
+      when "T","F"
+        if new_data == "T"
           @result.last << true
-        when /^F/
+        else
           @result.last << false
-        when /^}/
-          subresult = @result.pop
-          @result.last << subresult
+        end
+      when "}"
+        subresult = @result.pop
+        @result.last << subresult
+      else
+        if new_data =~ /^-?\d+(\.)?/
+          if $~[1].nil?
+            @result.last << new_data.to_i
+          else
+            @result.last << new_data.to_f
+          end
         else
           raise "CSV error: #{new_data}"
         end
-        @position = position
-        @states.pop
-      #end
+      end
+      @position = position
+      @states.pop
     end
   end
 end
