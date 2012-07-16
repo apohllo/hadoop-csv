@@ -2,7 +2,7 @@ $:.unshift "lib"
 
 Gem::Specification.new do |s|
   s.name = "hadoop-csv"
-  s.version = '0.0.2'
+  s.version = '0.0.3'
   s.date = "#{Time.now.strftime("%Y-%m-%d")}"
   s.authors = ['Aleksander Pohl']
   s.email   = ["apohllo@o2.pl"]
