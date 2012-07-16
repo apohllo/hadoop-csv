@@ -2,9 +2,8 @@ $:.unshift "lib"
 
 Gem::Specification.new do |s|
   s.name = "hadoop-csv"
-  s.version = '0.0.1'
+  s.version = '0.0.2'
   s.date = "#{Time.now.strftime("%Y-%m-%d")}"
-  # TODO set to Linux/MacOSX and Ruby 1.9
   s.authors = ['Aleksander Pohl']
   s.email   = ["apohllo@o2.pl"]
   #s.homepage    = "http://github.com/apohllo/rod"

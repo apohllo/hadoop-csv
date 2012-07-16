@@ -1,0 +1,14 @@
+= Hadoop-CSV
+
+Ruby reader for Hadoop CSV format.
+
+== Description
+
+This gem implements a ragel based parser for Hadoop CSV format. 
+That format uses several complex types to represent vecotrs, maps
+and structures. 
+
+More info: http://hadoop.apache.org/common/docs/current/api/org/apache/hadoop/record/package-summary.html
+
+Note: the description lacks information about %7D special sequence which encodes a quoted 
+closing brace.
