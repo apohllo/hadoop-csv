@@ -28,9 +28,9 @@ class << self
 	private :_csv_trans_keys, :_csv_trans_keys=
 end
 self._csv_trans_keys = [
-	0, 0, 0, 125, 48, 50, 
-	48, 65, 53, 67, 0, 
-	0, 0
+	0, 0, 0, 125, 48, 55, 
+	48, 65, 53, 67, 68, 
+	68, 0, 0, 0
 ]
 
 class << self
@@ -38,7 +38,7 @@ class << self
 	private :_csv_key_spans, :_csv_key_spans=
 end
 self._csv_key_spans = [
-	0, 126, 3, 18, 15, 0
+	0, 126, 8, 18, 15, 1, 0
 ]
 
 class << self
@@ -46,7 +46,7 @@ class << self
 	private :_csv_index_offsets, :_csv_index_offsets=
 end
 self._csv_index_offsets = [
-	0, 0, 127, 131, 150, 166
+	0, 0, 127, 136, 155, 171, 173
 ]
 
 class << self
@@ -70,11 +70,12 @@ self._csv_indicies = [
 	0, 0, 0, 0, 0, 3, 0, 0, 
 	0, 0, 0, 3, 0, 0, 3, 0, 
 	0, 0, 0, 0, 0, 5, 0, 6, 
-	1, 7, 1, 0, 1, 1, 1, 1, 
+	1, 7, 1, 1, 1, 1, 8, 1, 
+	0, 1, 1, 1, 1, 1, 1, 1, 
 	1, 1, 1, 1, 1, 1, 1, 1, 
-	1, 1, 1, 1, 0, 1, 0, 1, 
+	1, 0, 1, 0, 1, 1, 1, 1, 
 	1, 1, 1, 1, 1, 1, 1, 1, 
-	1, 1, 1, 1, 0, 1, 1, 0
+	1, 0, 1, 0, 1, 1, 0
 ]
 
 class << self
@@ -82,7 +83,8 @@ class << self
 	private :_csv_trans_targs, :_csv_trans_targs=
 end
 self._csv_trans_targs = [
-	1, 0, 5, 1, 2, 1, 3, 4
+	1, 0, 6, 1, 2, 1, 3, 4, 
+	5
 ]
 
 class << self
@@ -90,7 +92,8 @@ class << self
 	private :_csv_trans_actions, :_csv_trans_actions=
 end
 self._csv_trans_actions = [
-	0, 0, 1, 2, 0, 1, 0, 0
+	0, 0, 1, 2, 0, 1, 0, 0, 
+	0
 ]
 
 class << self
@@ -100,7 +103,7 @@ self.csv_start = 1;
 class << self
 	attr_accessor :csv_first_final
 end
-self.csv_first_final = 5;
+self.csv_first_final = 6;
 class << self
 	attr_accessor :csv_error
 end
@@ -136,7 +139,7 @@ self.csv_en_main = 1;
       pe = :ignored
       eof = :ignored
       
-# line 140 "lib/hadoop/csv.rb"
+# line 143 "lib/hadoop/csv.rb"
 begin
 	p ||= 0
 	pe ||= data.length
@@ -152,7 +155,7 @@ end
       p = 0
       pe = data.length
       
-# line 156 "lib/hadoop/csv.rb"
+# line 159 "lib/hadoop/csv.rb"
 begin
 	testEof = false
 	_slen, _trans, _keys, _inds, _acts, _nacts = nil
@@ -200,7 +203,7 @@ begin
 
   register_end(data[p],data,p)
 		end
-# line 204 "lib/hadoop/csv.rb"
+# line 207 "lib/hadoop/csv.rb"
 	end
 	end
 	end
@@ -270,7 +273,7 @@ end
       case new_data[0]
       when "'"
         @result.last << new_data[1..-1].gsub(/%00/,"\0").gsub(/%0A/,"\n").
-          gsub(/%25/,"%").gsub(/%2C/,",").force_encoding("utf-8")
+          gsub(/%25/,"%").gsub(/%2C/,",").gsub(/%7D/,"}").force_encoding("utf-8")
       when "T","F"
         if new_data == "T"
           @result.last << true

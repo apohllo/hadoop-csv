@@ -13,7 +13,7 @@ action value_end {
 
 start_tag = ('T' | 'F' | '-' | digit | ';' | "'" | "#" | 's{' | 'v{' | 'm{') >value_start;
 end_tag = (',' | '}') >value_end;
-normal = (any - [\0\n%,] | '%00' | '%0A' | '%25' | '%2C' );
+normal = (any - [\0\n%,}] | '%00' | '%0A' | '%25' | '%2C' | '%7D');
 main := (start_tag | normal | end_tag) * . "\n" >value_end;
 
 }%%
@@ -111,7 +111,7 @@ module Hadoop
       case new_data[0]
       when "'"
         @result.last << new_data[1..-1].gsub(/%00/,"\0").gsub(/%0A/,"\n").
-          gsub(/%25/,"%").gsub(/%2C/,",").force_encoding("utf-8")
+          gsub(/%25/,"%").gsub(/%2C/,",").gsub(/%7D/,"}").force_encoding("utf-8")
       when "T","F"
         if new_data == "T"
           @result.last << true
